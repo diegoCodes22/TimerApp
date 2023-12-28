@@ -1,0 +1,85 @@
+# beepy sounds1 : 'coin', 2 : 'robot_error', 3 : 'error', 4 : 'ping', 5 : 'ready', 6 : 'success', 7 : 'wilhelm'
+
+from time import sleep
+from datetime import datetime, timedelta
+import beepy
+import tkinter as tk
+from typing import List
+from sys import argv
+
+
+class TimerObject:
+    def __init__(self, start_time: str):
+        self.start_time = datetime.strptime(start_time, '%H:%M:%S')
+        self.timer_time = self.start_time
+        self.zero = datetime.strptime('00:00:00', '%H:%M:%S')
+
+    def start_timer(self, label: tk.Label) -> None:
+        while self.timer_time != self.zero:
+            self.timer_time -= timedelta(seconds=1)
+            tvar = tk.StringVar()
+            label.config(textvariable=tvar)
+            tvar.set(self.timer_time.__format__('%H:%M:%S'))
+            label.update()
+            sleep(0.9)
+        if self.timer_time == self.zero:
+            beepy.beep(sound='success')
+
+
+class CountdownTimers:
+    def __init__(self, times: List[str]):
+        self.times = times
+        if len(times) > 15:
+            self.error("tmt")
+        self.timers: List[(TimerObject, tk.Label)] = []
+        self.root = tk.Tk()
+        self.root.geometry("300x75")
+        self.create_timers()
+        self.start()
+        self.root.mainloop()
+
+    def start(self) -> None:
+        timer, label = self.timers[0]
+        timer.start_timer(label)
+        label.destroy()
+        del self.timers[0]
+        self.root.update()
+        if len(self.timers) > 0:
+            self.root.after(0, self.start)
+        else:
+            ll = tk.Label(self.root, text="Timers finished!", font=("Arial", 20))
+            ll.pack(padx=22, pady=22)
+            sleep(3)
+            self.root.destroy()
+            exit(1)
+
+    def create_timers(self) -> None:
+        for time in self.times:
+            time_var = tk.StringVar()
+            label = tk.Label(self.root, textvariable=time_var, font=("Arial", 20))
+            time_var.set(time)
+            label.pack(padx=22, pady=22)
+            self.timers.append((TimerObject(time), label))
+
+    @staticmethod
+    def error(error) -> None:
+        if error == "tmt":
+            raise ValueError("Too many timers")
+
+
+class AlarmClock:
+    def __init__(self, alarmtime: str):
+        self.AlarmTime = alarmtime
+        self.create_alarm()
+
+    def create_alarm(self) -> None:
+        while True:
+            formatted = datetime.strptime(self.AlarmTime, '%H:%M')
+            alarm_time = formatted.__format__('%H:%M')
+            if alarm_time == datetime.now().strftime('%H:%M'):
+                beepy.beep('success')
+                break
+
+
+if __name__ == '__main__':
+    CountdownTimers(argv[1:])
