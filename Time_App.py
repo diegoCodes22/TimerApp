@@ -14,10 +14,12 @@ class TimerObject:
         self.start_time = datetime.strptime(start_time, '%H:%M:%S')
         self.timer_time = self.start_time
         self.zero = datetime.strptime('00:00:00', '%H:%M:%S')
-        self.state = True
+        self.state = 1
 
     def start_timer(self, label: tk.Label) -> None:
-        while self.state:
+        while self.state == 1 or self.state == 0:
+            while self.state == 0:
+                pass
             self.timer_time -= timedelta(seconds=1)
             tvar = tk.StringVar()
             label.config(textvariable=tvar)
@@ -28,8 +30,10 @@ class TimerObject:
             beepy.beep(sound='success')
 
     def skip_timer(self) -> None:
-        self.state = False
+        self.state = -1
 
+    def stop_timer(self) -> None:
+        self.state = 0
 
 
 class CountdownTimers:
@@ -52,11 +56,13 @@ class CountdownTimers:
         skip = tk.Button(btn_frame, text="Skip", command=timer.skip_timer)
         skip.pack(side=tk.TOP)
         stop = tk.Button(btn_frame, text="Stop", command=timer.stop_timer)
+        stop.pack(side=tk.RIGHT)
 
         timer.start_timer(label)
 
         label.destroy()
         skip.destroy()
+        stop.destroy()
         del self.timers[0]
         self.root.update()
         if len(self.timers) > 0:
