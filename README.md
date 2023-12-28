@@ -11,3 +11,4 @@
 - Set alarms
 - Set different sounds for each timer
 - Set timers to run parallel
+- Handle errors when incorrect input is provided
