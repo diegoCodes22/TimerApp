@@ -89,7 +89,10 @@ if __name__ == '__main__':
             for line in f.readlines():
                 if argv[2] in line:
                     timers += line.split(" ")[1:-1]
-                    sound = line.split(" ")[-1].split("=")[1]
+                    try:
+                        sound = line.split(" ")[-1].split("=")[1]
+                    except IndexError:
+                        pass
         CountdownTimers(timers)
     else:
         CountdownTimers(argv[1:])

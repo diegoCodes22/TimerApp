@@ -1,14 +1,15 @@
 # Multiple timer app
 - Run from the command line with `python path/to/Time_App.py 00:10:00 01:00:00`
 - This creates one 10-minute timer and 1-hour timer, they do not run parallel, the first timer must finish before the second one starts.
-- You can add as many add 15 timers.
+- You can add as many add 15 timers just add more timers separated by a space.
 - The app automatically closes when all timers are finished.
 - Configurations file, add custom configurations and run them by just calling `python path/to/Time_App.py Configurations config_name`
+- To add a configuration, open the Configurations file and add a new line with the name of the configuration and the timers separated by a space, the last argument can be sound=default.
 
 ## Keyboard shortcuts 
 - Only for mac
 - Create a folder with any name, inside the folder you will make a file with the .sh extension.
-- Inside this file, write this code:
+- Inside this file, write this code (Do not copy and paste it, the path to the time app folder will be different depending on where you saved it):
 ```
 #!/bin/bash
 cd path/to/Time_App folder
