@@ -82,4 +82,14 @@ class AlarmClock:
 
 
 if __name__ == '__main__':
-    CountdownTimers(argv[1:])
+    timers: List[str] = []
+    sound: str = ''
+    if argv[1] == "Configurations":
+        with open("Configurations", 'r') as f:
+            for line in f.readlines():
+                if argv[2] in line:
+                    timers += line.split(" ")[1:-1]
+                    sound = line.split(" ")[-1].split("=")[1]
+        CountdownTimers(timers)
+    else:
+        CountdownTimers(argv[1:])
