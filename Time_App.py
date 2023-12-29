@@ -5,35 +5,36 @@ from datetime import datetime, timedelta
 from sys import argv
 from time import sleep
 from typing import List
+from os import wait, fork
 
 import beepy
 
 
 class TimerObject:
-    def __init__(self, start_time: str):
+    def __init__(self, start_time: str, label: tk.Label):
         self.start_time = datetime.strptime(start_time, '%H:%M:%S')
         self.timer_time = self.start_time
         self.zero = datetime.strptime('00:00:00', '%H:%M:%S')
         self.state = 1
+        self.label = label
 
-    def start_timer(self, label: tk.Label) -> None:
-        while self.state == 1 or self.state == 0:
-            while self.state == 0:
-                pass
+    def start_timer(self) -> datetime:
+        if self.timer_time != self.zero and self.state == 1:
             self.timer_time -= timedelta(seconds=1)
             tvar = tk.StringVar()
-            label.config(textvariable=tvar)
+            self.label.config(textvariable=tvar)
             tvar.set(self.timer_time.__format__('%H:%M:%S'))
-            label.update()
+            self.label.update()
             sleep(1)
-        if self.timer_time == self.zero:
+            self.start_timer()
+        elif self.timer_time == self.zero:
             beepy.beep(sound='success')
+            return self.zero
+        elif self.state == -1:
+            return self.timer_time
 
     def skip_timer(self) -> None:
         self.state = -1
-
-    def stop_timer(self) -> None:
-        self.state = 0
 
 
 class CountdownTimers:
@@ -45,24 +46,22 @@ class CountdownTimers:
         self.root = tk.Tk()
         self.root.geometry("300x75")
         self.create_timers()
-
         self.start()
+        self.skipped = []
         self.root.mainloop()
 
     def start(self) -> None:
-        timer, label = self.timers[0]
+        timer = self.timers[0]
         btn_frame = tk.Frame(self.root)
         btn_frame.pack(side=tk.RIGHT)
         skip = tk.Button(btn_frame, text="Skip", command=timer.skip_timer)
         skip.pack(side=tk.TOP)
-        stop = tk.Button(btn_frame, text="Stop", command=timer.stop_timer)
-        stop.pack(side=tk.RIGHT)
 
-        timer.start_timer(label)
-
-        label.destroy()
+        timer_return = timer.start_timer()
+        if timer.state == -1:
+            self.skipped.append(timer_return)
+        timer.label.destroy()
         skip.destroy()
-        stop.destroy()
         del self.timers[0]
         self.root.update()
         if len(self.timers) > 0:
@@ -80,8 +79,7 @@ class CountdownTimers:
             label = tk.Label(self.root, textvariable=time_var, font=("Arial", 20))
             time_var.set(time)
             label.pack(padx=22, pady=22)
-            self.timers.append((TimerObject(time), label))
-
+            self.timers.append(TimerObject(time, label))
 
     @staticmethod
     def error(error) -> None:
